@@ -2,11 +2,12 @@
 'use strict';
 
 var fs = require('fs');
+var ProgressBar = require('progress');
 var replaceall = require('replaceall');
 
 var cssFileName = process.argv[3] || 'fonts.css';
 var htmlFileName = process.argv[4] || 'fonts.html';
-var RENAME = flag();
+var RENAME = renameFlag();
 
 var cssFile = fs.createWriteStream(cssFileName);
 var htmlFile = fs.createWriteStream(htmlFileName);
@@ -14,9 +15,18 @@ var fontDir = process.argv[2];
 
 walk(fontDir, function(err, results) {
     if (err) throw err;
+    
+    var barOpts = { 
+        total: results.length,
+        width: 30,
+        complete: '=',
+        incomplete: ' '
+    };
 
-    htmlFile.write('<link rel="stylesheet" type="text/css" href="'+cssFileName+'" media="screen" />\n\n');
+    var bar = new ProgressBar('[:bar] :percent :etas', barOpts);
+
     cssFile.write('body {margin :0 auto;} h1 {text-align : center;}\n\n');
+    htmlFile.write('<link rel="stylesheet" type="text/css" href="'+cssFileName+'" media="screen" />\n\n');
 
     results.forEach(writeFontDefinition);
 
@@ -36,9 +46,12 @@ walk(fontDir, function(err, results) {
         htmlFile.write('<h1 style="font-family: '+name+'">\n');
         htmlFile.write('\t'+name+'\n');
         htmlFile.write('</h1>\n\n');
+
+        bar.tick();
+        if (bar.complete) console.log('complete!');
     }
 
-    if (!RENAME) console.log('beware, files were not renamed, maybe fontpaths are wrong.')
+    if (!RENAME) console.log('\nbeware, files were not renamed, maybe fontpaths are wrong.');
 
 });
 
@@ -83,7 +96,7 @@ function walk (dir, done) {
     });
 }
 
-function flag () {
-    if (process.argv[5] === '-r') return true
+function renameFlag () {
+    if (process.argv[5] === '-r') return true;
     else return false;
 }

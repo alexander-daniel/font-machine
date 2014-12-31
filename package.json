@@ -19,6 +19,7 @@
   "author": "Alexander Vados <alex.vados@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "progress": "^1.1.8",
     "replaceall": "^0.1.3"
   },
   "engines": {
