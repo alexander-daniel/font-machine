@@ -1,6 +1,6 @@
 {
   "name": "font-machine",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "creates a stylesheet from otf and ttf font files",
   "bin": {
     "font-machine": "./cmd.js"
