@@ -48,7 +48,11 @@ walk(fontDir, function(err, results) {
         htmlFile.write('</h1>\n\n');
 
         bar.tick();
-        if (bar.complete) console.log('complete!');
+        if (bar.complete) {
+            cssFile.end();
+            htmlFile.end();
+            console.log('complete!');
+        }
     }
 
     if (!RENAME) console.log('\nbeware, files were not renamed, maybe fontpaths are wrong.');
