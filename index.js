@@ -3,33 +3,41 @@
 var fs = require('fs');
 var replaceall = require('replaceall');
 
-walk('fonts', function(err, results) {
-    if (err) throw err;
-    var cssFile = fs.createWriteStream('fonts.css');
-    var htmlFile = fs.createWriteStream('fonts.html');
+var cssFileName = process.argv[3] || 'fonts.css';
+var htmlFileName = process.argv[4] || 'fonts.html';
+var RENAME = flag();
 
-    htmlFile.write('<link rel="stylesheet" type="text/css" href="fonts.css" media="screen" />\n\n');
+var cssFile = fs.createWriteStream(cssFileName);
+var htmlFile = fs.createWriteStream(htmlFileName);
+var fontDir = process.argv[2];
+
+walk(fontDir, function(err, results) {
+    if (err) throw err;
+
+    htmlFile.write('<link rel="stylesheet" type="text/css" href="'+cssFileName+'" media="screen" />\n\n');
     cssFile.write('body {margin :0 auto;} h1 {text-align : center;}\n\n');
 
     results.forEach(writeFontDefinition);
 
     function writeFontDefinition(fontFilePath) {
         var newPath = replaceall(' ', '_', fontFilePath);
-        fs.renameSync(fontFilePath, newPath);
-        var name = getName(fontFilePath);
-        var format = getFormat(fontFilePath);
+        var name = getName(newPath);
+        var format = getFormat(newPath);
+        if (RENAME) fs.renameSync(fontFilePath, newPath);
         if (!name) return;
         if (!format) return;
 
-        cssFile.write('@font-face { \n' );
+        cssFile.write('@font-face {\n' );
         cssFile.write('\tfont-family: ' + name + ';\n');
         cssFile.write('\tsrc: url('+ newPath + ') format('+ format + ');\n');
-        cssFile.write('} \n\n');
+        cssFile.write('}\n\n');
 
-        htmlFile.write('<h1 style="font-family: '+ name + ' ">\n');
-        htmlFile.write('\t' + name + '\n');
+        htmlFile.write('<h1 style="font-family: '+name+'">\n');
+        htmlFile.write('\t'+name+'\n');
         htmlFile.write('</h1>\n\n');
     }
+
+    if (!RENAME) console.log('beware, files were not renamed, maybe fontpaths are wrong.')
 
 });
 
@@ -72,4 +80,9 @@ function walk (dir, done) {
             });
         })();
     });
+}
+
+function flag () {
+    if (process.argv[5] === '-r') return true
+    else return false;
 }

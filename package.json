@@ -1,5 +1,5 @@
 {
-  "name": "font-builder",
+  "name": "font-machine",
   "version": "0.0.0",
   "description": "creates a stylesheet from otf and ttf font files",
   "main": "index.js",
